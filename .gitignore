@@ -20,3 +20,6 @@ deps/deps.jl
 Manifest.toml
 *.vscode*
 examples/Lorenz/output
+examples/ClimateMachine/*.out
+examples/ClimateMachine/*.txt
+
