@@ -1,11 +1,13 @@
 #!/bin/bash
 
-#SBATCH --job-name=ekp_call  # job name
+#SBATCH --job-name=ekp_cal   # job name
 #SBATCH --partition=serc     # partition
 #SBATCH --time=1:00:00       # walltime
 #SBATCH --ntasks=1           # number of processor cores (i.e. tasks)
 #SBATCH --nodes=1            # number of nodes
 #SBATCH --mem-per-cpu=6G     # memory per CPU core
+#SBATCH --output=oe_files/ekp_cal_%j.out
+#SBATCH --error=oe_files/ekp_cal_%j.err
 
 # Size of the ensemble
 n=10
