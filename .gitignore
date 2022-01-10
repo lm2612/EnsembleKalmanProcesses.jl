@@ -21,4 +21,4 @@ Manifest.toml
 *.vscode*
 examples/Lorenz/output
 examples/ClimateMachine/oe_files
-
+examples/ClimateMachine/*txt
