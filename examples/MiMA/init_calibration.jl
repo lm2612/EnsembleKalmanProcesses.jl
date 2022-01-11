@@ -23,6 +23,6 @@ versions = map(param -> generate_mima_params(param, param_names), params_arr)
 # Store version identifiers for this ensemble in a common file
 open("versions_1.txt", "w") do io
     for version in versions
-        write(io, "mima_param_defs_$(version).jl\n")
+        write(io, "mima_param_defs_$(version).txt\n")
     end
 end
