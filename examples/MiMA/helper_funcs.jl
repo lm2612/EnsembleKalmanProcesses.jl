@@ -9,7 +9,7 @@ using JLD
 generate_mima_params(mima_params::Array{Float64}, 
                             mima_param_names::Array{String})
 
-Generate a MIMAParameters file, setting the values (cp_params) of
+Generate a MIMAParameters file, setting the values (mima_params) of
 a group of MIMAParameters (mima_param_names).
 """
 function generate_mima_params(mima_params::Array{Float64}, mima_param_names::Array{String})
@@ -18,12 +18,11 @@ function generate_mima_params(mima_params::Array{Float64}, mima_param_names::Arr
     if length(mima_params) == length(mima_param_names)
         open("mima_param_defs_$(version).jl", "w") do io
             for i in 1:length(mima_params)
-                #write(
-                #    io,
-                #    "MIMAParameters.Atmos.SubgridScale.
-              #$(mima_param_names[i])(::EarthParameterSet) = 
-              #$(mima_params[i])\n",
-              #  )
+                write(
+                    io,
+		    "$(mima_param_names[i]) =
+                     $(mima_params[i])\n",
+                )
             end
         end
     else
