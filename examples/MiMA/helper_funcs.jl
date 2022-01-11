@@ -20,8 +20,7 @@ function generate_mima_params(mima_params::Array{Float64}, mima_param_names::Arr
             for i in 1:length(mima_params)
                 write(
                     io,
-		    "$(mima_param_names[i]) =
-                     $(mima_params[i])\n",
+		    "$(mima_param_names[i]) = $(mima_params[i])\n",
                 )
             end
         end
