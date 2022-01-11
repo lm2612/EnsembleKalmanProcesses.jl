@@ -6,17 +6,21 @@
 #SBATCH --mem-per-cpu=4G      # memory per CPU core
 #SBATCH --job-name=mima_run   # job name
 #SBATCH --partition=serc      # partition
-#SBATCH --output=${SCRATCH}/MiMA/ekp_jobs/${1}_%j.out
-#SBATCH --error==${SCRATCH}/MiMA/ekp_jobs/${1}_%j.err
+#SBATCH --output=/scratch/users/lauraman/MiMA/ekp_jobs/%j.out
+#SBATCH --error=/scratch/users/lauraman/MiMA/ekp_jobs/%j.err
 
 
 iteration_=${1?Error: no iteration given}
 
+# Get version info by reading line run_num 
 run_num=${SLURM_ARRAY_TASK_ID}
+echo "${run_num}"
 version=$(head -"$run_num" "versions_"$iteration_".txt" | tail -1)
+# Extract version_id from filename, should give us a number of length 5. We will save the run under this name.
+version_id=$(echo $version| cut -d'_' -f 4 | cut -d'.' -f 1)
+echo $version_id
 
 # RUN MiMA SIMULATION
-
 #--------------------------------------------------------------------------------------------------------
 # Set up relevant paths and modules
 ulimit -s unlimited
@@ -39,12 +43,14 @@ N_PROCS=32
 #--------------------------------------------------------------------------------------------------------
 # Set up run directory
 PLATFORM=SH03_CEES
-run=${iteration_}
+run="${iteration_}_${run_num}"
 executable=${HOME}/MiMA/exp/exec.${PLATFORM}/mima.x
-### Set up input namelist input=${SCRATCH}/MiMA/inputs/$run
 rundir=${SCRATCH}/MiMA/ekp_runs/$run
-# Start from control run output in run032
-restartdir=${SCRATCH}/MiMA/runs/032   
+
+# Set up restart files and basic input files from control run (run033)
+# which has input params cwtropics = 35,  cw = 35, Bt_0  = 0.0043,  Bt_nh = 0.0035
+restartdir=${SCRATCH}/MiMA/runs/033   
+input=${SCRATCH}/MiMA/inputs/ekp_input               # input file is a copy of run033 but set to 1 year for testing
 
 # Make run dir
 [ ! -d $rundir ] && mkdir $rundir
@@ -55,20 +61,36 @@ cp -r $input/* $rundir/
 # Copy restart files to input
 cp -r $restartdir/RESTART/*res* $rundir/INPUT/
 
+# Edit input namelist for this iteration's parameters
+# Read entry from mima_param_defs_${iteration}
+mima_param_file="${SCRATCH}/MiMA/ekp_runs/${version}"
+while IFS= read -r line
+do
+    echo "$line"
+    # Change corresponding parameter in namelist
+    ## Note this currently would not work if we would change cw as it would pick up cw and cwtropics
+    if [[ "$line" == cwtropics* ]];
+    then
+        # Set cwtropics within namelist 
+        sed -i "s/cwtropics = 35.0/${line}/g" $rundir/input.nml
+	
+    fi
+
+done < "$mima_param_file"
+
 #--------------------------------------------------------------------------------------------------------
 # Run the model
 cd $rundir
 echo "run MiMA"
 [ ! -d RESTART ] && mkdir RESTART
-
 srun --ntasks $N_PROCS mima.x
 
 CCOMB=${HOME}/MiMA/bin/mppnccombine.${PLATFORM}
 $CCOMB -r atmos_daily.nc atmos_daily.nc.????
 $CCOMB -r atmos_avg.nc atmos_avg.nc.????
 
-# Run output will be saved in ${SCRATCH}/MiMA/ekp_runs/XX/
-# Job info will be saved in ${SCRATCH}/MiMA/ekp_jobs/XX_JOBID.out 
+# Run output will be saved in ${SCRATCH}/MiMA/ekp_runs/iteration_runnum/
+# Job info will be saved in ${SCRATCH}/MiMA/ekp_jobs/JOBID.out 
 
 echo "MiMA simulation for ${version} in iteration ${iteration_} finished"
-
+echo "Output saved in $rundir"
