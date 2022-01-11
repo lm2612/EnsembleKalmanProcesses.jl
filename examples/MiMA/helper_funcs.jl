@@ -16,7 +16,7 @@ function generate_mima_params(mima_params::Array{Float64}, mima_param_names::Arr
     # Generate version
     version = rand(11111:99999)
     if length(mima_params) == length(mima_param_names)
-        open("mima_param_defs_$(version).jl", "w") do io
+        open("mima_param_defs_$(version).txt", "w") do io
             for i in 1:length(mima_params)
                 write(
                     io,
