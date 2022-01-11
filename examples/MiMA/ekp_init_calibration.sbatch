@@ -6,8 +6,8 @@
 #SBATCH --mem-per-cpu=6G        # memory per CPU core
 #SBATCH --job-name=ekp_init     # job name
 #SBATCH --partition=serc        # partition
-#SBATCH --output=oe_files/ekp_init_%j.out
-#SBATCH --error=oe_files/ekp_init_%j.err
+#SBATCH --output=/scratch/users/lauraman/MiMA/ekp_jobs/ekp_init_%j.out
+#SBATCH --error=/scratch/users/lauraman/MiMA/ekp_jobs/ekp_init_%j.err
 
 #julia package management
 #module load julia/1.5.2 hdf5/1.10.1 netcdf-c/4.6.1 openmpi/4.0.1
@@ -15,6 +15,6 @@ module load julia hdf5 netcdf openmpi
 
 julia --project -e 'using Pkg; Pkg.instantiate(); Pkg.API.precompile()'
 
-#julia --project init_calibration.jl
+julia --project init_calibration.jl
 echo 'Ensemble initialized for calibration.'
-#mv clima_param_defs* ../../../ClimateMachine.jl/test/Atmos/EDMF/
+mv mima_param_defs* ${SCRATCH}/MiMA/ekp_runs/
