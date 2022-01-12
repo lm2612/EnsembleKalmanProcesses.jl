@@ -27,10 +27,16 @@ ulimit -s unlimited
 
 # Use cees-beta stack
 . /home/groups/s-ees/share/cees/spack_cees/scripts/cees_sw_setup-beta.sh
+
 module purge
 CEES_MODULE_SUFFIX="cees-beta"
-module load devel gcc/10.  intel-${CEES_MODULE_SUFFIX}  mpich-${CEES_MODULE_SUFFIX}/
-module load netcdf-c-${CEES_MODULE_SUFFIX}/ netcdf-fortran-${CEES_MODULE_SUFFIX}/ anaconda-${CEES_MODULE_SUFFIX}/
+
+module load devel gcc/10.
+module load intel-${CEES_MODULE_SUFFIX}
+module load mpich-${CEES_MODULE_SUFFIX}/
+module load netcdf-c-${CEES_MODULE_SUFFIX}/
+module load netcdf-fortran-${CEES_MODULE_SUFFIX}/
+module load anaconda-${CEES_MODULE_SUFFIX}/
 cwd=`pwd`
 
 # Currently two libraries are not found in linking on SH03_CEES: libfabric and hwloc. Manually add them here.
@@ -50,7 +56,7 @@ rundir=${SCRATCH}/MiMA/ekp_runs/$run
 # Set up restart files and basic input files from control run (run033)
 # which has input params cwtropics = 35,  cw = 35, Bt_0  = 0.0043,  Bt_nh = 0.0035
 restartdir=${SCRATCH}/MiMA/runs/033   
-input=${SCRATCH}/MiMA/inputs/ekp_input               # input file is a copy of run033 but set to 1 year for testing
+input=${SCRATCH}/MiMA/inputs/ekp_inputs               # input file is a copy of run033 but set to 1 year for testing
 
 # Make run dir
 [ ! -d $rundir ] && mkdir $rundir
