@@ -44,8 +44,9 @@ do
     fi
     echo "Done run, get output"
     # Run python script to get QBO output here
+    id_ens_py_array=$(sbatch --parsable --kill-on-invalid-dep=yes --dependency=afterok:$id_ens_array --array=1-$n ekp_single_metrics_calc.sbatch $it)
     echo "Done, running calibration"
-    id_ek_upd=$(sbatch --parsable --kill-on-invalid-dep=yes --dependency=afterok:$id_ens_array --export=n=$n ekp_cont_calibration.sbatch $it)
+    id_ek_upd=$(sbatch --parsable --kill-on-invalid-dep=yes --dependency=afterok:$id_ens_py_array --export=n=$n ekp_cont_calibration.sbatch $it)
     echo "Done calibration"
 done
 
