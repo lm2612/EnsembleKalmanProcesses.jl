@@ -35,17 +35,17 @@ echo "Done init_calibration"
 # Loop over each EK iteration
 for it in $(seq 1 1 $n_it)
 do
-# Parallel runs of forward model
-echo "Running iteration ${it}"
-if [ "$it" = "1" ]; then
-    id_ens_array=$(sbatch --parsable --kill-on-invalid-dep=yes --dependency=afterok:$id_init_ens --array=1-$n ekp_single_mima_run.sbatch $it)
-else
-    id_ens_array=$(sbatch --parsable --kill-on-invalid-dep=yes --dependency=afterok:$id_ek_upd --array=1-$n ekp_single_mima_run.sbatch $it)
-fi
-echo "Done run, get output"
-# Run python script to get QBO output here
-echo "Done, running calibration"
-id_ek_upd=$(sbatch --parsable --kill-on-invalid-dep=yes --dependency=afterok:$id_ens_array --export=n=$n ekp_cont_calibration.sbatch $it)
-echo "Done calibration"
+    # Parallel runs of forward model
+    echo "Running iteration ${it}"
+    if [ "$it" = "1" ]; then
+        id_ens_array=$(sbatch --parsable --kill-on-invalid-dep=yes --dependency=afterok:$id_init_ens --array=1-$n ekp_single_mima_run.sbatch $it)
+    else
+        id_ens_array=$(sbatch --parsable --kill-on-invalid-dep=yes --dependency=afterok:$id_ek_upd --array=1-$n ekp_single_mima_run.sbatch $it)
+    fi
+    echo "Done run, get output"
+    # Run python script to get QBO output here
+    echo "Done, running calibration"
+    id_ek_upd=$(sbatch --parsable --kill-on-invalid-dep=yes --dependency=afterok:$id_ens_array --export=n=$n ekp_cont_calibration.sbatch $it)
+    echo "Done calibration"
 done
 
