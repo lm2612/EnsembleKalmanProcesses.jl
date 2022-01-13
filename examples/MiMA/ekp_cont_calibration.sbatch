@@ -17,6 +17,6 @@ iteration_=${1?Error: no iteration given}
 julia --project -e 'using Pkg; Pkg.instantiate(); Pkg.API.precompile()'
 
 # CALIBRATION STEP TO GO HERE
-#julia --project sstep_calibration.jl --iteration $iteration_
+julia --project sstep_calibration.jl --iteration $iteration_
 echo "Ensemble ${iteration_} recovery finished."
-#mv clima_param_defs*.jl ../../../ClimateMachine.jl/test/Atmos/EDMF/
+mv mima_param_defs* ${SCRATCH}/MiMA/ekp_runs/
