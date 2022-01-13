@@ -40,7 +40,6 @@ function ek_update(iteration_::Int64)
         input_filename = "$(basedir)/$(version_)"
         open(input_filename, "r") do io
             line = readline(io)
-            println(line)
             for (u_index, u_name) in enumerate(u_names)
                 u[ens_index, u_index] = parse(Float64, (strip(string(split(line, "$(u_name) = ")[2]), [' '])) )
             end 
@@ -52,7 +51,7 @@ function ek_update(iteration_::Int64)
     println("Get truth")
     # Get observations / truth output
     y_names = ["std20", "std77"]
-    yt = 0
+    yt = zeros(0)
     yt_var_list = []
 
 
