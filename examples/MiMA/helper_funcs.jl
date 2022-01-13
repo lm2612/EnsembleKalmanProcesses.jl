@@ -4,7 +4,6 @@ using Interpolations
 using LinearAlgebra
 using Glob
 using JLD
-# WRITE EQUIV FUNCS FOR MiMA
 """
 generate_mima_params(mima_params::Array{Float64}, 
                             mima_param_names::Array{String})
@@ -28,75 +27,6 @@ function generate_mima_params(mima_params::Array{Float64}, mima_param_names::Arr
         throw(ArgumentError("Number of parameter names must be equal to number of values provided."))
     end
     return version
-end
-
-# WRITE FUNC TO ESTIMATE QBO AMPLITUDE/PERIOD
-"""
-get_mima_metrics(sim_dir::String,
-                     var_name::Array{String,1};
-                     ti::Float64=0.0,
-                     tf::Float64=0.0,
-                     z_obs::Union{Array{Float64, 1}, Nothing} = nothing,
-                     get_variance::Bool=false)
-Get an estimate of QBO amplitude and period from mima simulation. 
-If get_variance, return
-the variance over the same averaging period.
-"""
-function get_mima_metrics(
-    sim_dir::String,
-    var_name::Array{String, 1};
-    ti::Float64 = 0.0,
-    tf::Float64 = 0.0,
-    z_obs::Union{Array{Float64, 1}, Nothing} = nothing,
-    get_variance::Bool = false,
-)
-
-    ds_name = glob("$(sim_dir)/*.nc")[1]
-    ds = NCDataset(ds_name)
-
-    if length(var_name) == 1 && occursin("z", var_name[1])
-        prof_vec = Array(ds[var_name[1]])
-    else
-        # Time in Datetime format
-        t = Array(ds["time"])
-        # Convert to float (seconds)
-        t = [(time_ .- t[1]).value / 1000.0 for time_ in t]
-        dt = t[2] - t[1]
-        ti_diff, ti_index = findmin(broadcast(abs, t .- ti))
-        tf_diff, tf_index = findmin(broadcast(abs, t .- tf))
-
-        prof_vec = zeros(0)
-        ts_vec = zeros(0, length(ti_index:tf_index))
-        # If simulation does not contain values for ti or tf, return high value
-        if ti_diff > dt || tf_diff > dt
-            for i in 1:length(var_name)
-                var_ = Array(ds[var_name[i]])
-                append!(prof_vec, 1.0e4 * ones(length(var_[:, 1])))
-            end
-            println("Initial or final times are not contained in netcdf file.")
-        else
-            for i in 1:length(var_name)
-                var_ = Array(ds[var_name[i]])
-                if !isnothing(z_obs)
-                    z_ = Array(ds["z"])
-                    # Form interpolation
-                    var_itp = interpolate((z_, t), var_, (Gridded(Linear()), Gridded(Linear())))
-                    # Evaluate interpolation
-                    var_ = var_itp(z_obs, t)
-                end
-                # Average in time
-                append!(prof_vec, mean(var_[:, ti_index:tf_index], dims = 2))
-                ts_vec = cat(ts_vec, var_[:, ti_index:tf_index], dims = 1)
-            end
-        end
-    end
-    close(ds)
-    if get_variance
-        cov_mat = cov(ts_vec, dims = 2)
-        return prof_vec, cov_mat
-    else
-        return prof_vec
-    end
 end
 
 """
